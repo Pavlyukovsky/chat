@@ -37,11 +37,46 @@ for($i = 0; $i < count($message); $i++){
     $name = $name['name'];
     $time = $message[$i]['date'];
     $time = date('Y-m-d H:i:s', $time);
-    echo "
-        <div id='message'>
-        $time  
-        <b>$name пишет: </b>
-        $msg
-        </div>
-    ";
+    $fileName = $message[$i]['file'];
+    if($fileName != ""){
+         //   (<a href='#' onclick='pop($fileName);' >$fileName</a>)
+        
+        echo "
+            <div class='drop-mess'>
+            $time  
+            <b>$name пишет: </b>
+            $msg
+            (<a href='#' class='files' onclick='console.log(\"$fileName\");
+
+            $.ajax({
+                    url: \"runPopup.php\",
+                    type: \"POST\",
+                    data: ({ fileName: \"$fileName\"}),
+                    success: function (msg) {
+                        document.getElementById(\"popUpText\").innerHTML = msg;
+                        return true;
+                    },
+                    error: function () {
+                        alert(\"error\");
+                        return false;
+                    }
+                });
+
+            document.getElementById(\"popUp\").style.display = \"block\";
+
+
+
+            ' >$fileName</a>)
+            </div>
+        ";
+    }else
+    {
+        echo "
+            <div class='drop-mess'>
+            $time  
+            <b class='name-mess'>$name пишет: </b>
+            $msg
+            </div>
+        ";
+    }
 }

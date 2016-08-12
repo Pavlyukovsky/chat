@@ -2,6 +2,9 @@
     window.onload = function () {
         var ajaxMessage = [];
         var can = true;
+        var fileCollection = new Array();
+
+        
 
         // Fast Authorization 
         if(window.localStorage.name != "" && window.localStorage.password != ""){
@@ -27,8 +30,7 @@
                 }
             });
         }
-
-
+        
 	    // Show Authorization Form
 	    document.getElementById('Authorization').onclick = function () {
 	        var divSignup = document.getElementById('divSignup');
@@ -53,59 +55,114 @@
 	        files = this.files;
 
 	        for (var a = 0; a < files.length; a++) {
-
 	            if (files[a].type == 'text/plain')
 	            {
 	                if(files[a].size < 100001)
 	                {
-	                    
-                        // Позволить выполнять
-	                    alert("DA DA DA");
+                        // load bar
+	                    var reader = new FileReader();
+	                    reader.readAsDataURL(files[a]);
+	                    reader.onload = function (e) {
+	                        $('#loading').remove();
+	                        var template = "<p id='loading'>Loading...</p>";
+	                        $('#chat').append(template);
+	                    }
+	                    reader.onloadend = function (e) {
+	                        $('#loading').remove();
+	                        var template = "<p id='loading'>Loaded</p>";
+	                        $('#chat').append(template);
+	                    }
+	                    // Позволить выполнять
+	                    fileCollection.push(files[a]);
 	                }
 	                else {
 	                    //Выход
-	                    alert('size > 100kb');
+	                    alert('file size > 100kb');
 	                }
 	            } else {
 	                //Выход
-	                alert('type isn\'t text/plain');
+	                alert('file type isn\'t text/plain');
 	            }
 	        }
 	    }
 
+        // Start Pop Up Window
+
+        // Click to X
+	    document.getElementById('closePopUp').onclick = function () {
+	        document.getElementById('popUp').style.display = "none";
+	    }
+        
+
+        // End Pop Up Window
+
 
         // Send Message
-	    document.getElementById('btnSend').onclick = function () {
+	    document.getElementById('btnSend').onclick = function (e) {
 	        if (window.localStorage.name != "" && window.localStorage.password != "")
 	        {
 	            var message = document.getElementById('txtMessage').value;
 	            var name = window.localStorage.name;
 
-	            event.preventDefault();
+	            e.preventDefault();
+	            e.stopPropagation();
 
+                // Stop function ShowMessage
 	            if (ajaxMessage != null) {
 	                ajaxMessage.abort();
 	                can = true;
 	            }
 
-	            $.ajax({
-	                url: 'sendMessage.php',
-	                type: "POST",
-	                data: ({ name: name, message: message}),
-	                success: function (msg) {
-	                    document.getElementById('txtMessage').value = "";
+                
+	            console.log(fileCollection);
+	            var form = document.forms.sendForm; // You need to use standart javascript object here
+	            var formdate = new FormData(form);
+                
+	            console.log(formdate);
 
-	                    runShowMessage();
-	                    return true;
-	                },
-	                error: function () {
-	                    alert('error');
-	                    return false;
-	                }
-	            });
+	            formdate.append('files', fileCollection[0]);
+	            formdate.append('name', name);
+	            formdate.append('message', message);
+
+	            console.log(formdate);
+
+	            var request = new XMLHttpRequest();
+	            request.open('post', 'sendMessage.php', true);
+
+	            request.onreadystatechange = function (msg) {
+	                document.getElementById('txtMessage').value = ""; // Clear textarea
+	                fileCollection = new Array(); // Clear file collection
+                    // Clear choosed file
+
+	                runShowMessage();
+	                return true;
+	            }
+
+	            request.onerror = function () {
+	                alert('error');
+	                return false;
+	            }
+
+	            request.send(formdate);
+
+	            //$.ajax({
+	            //    url: 'sendMessage.php',
+	            //    type: "POST",
+	            //    data: ({ name: name, message: message}),
+	            //    success: function (msg) {
+	            //        console.log(msg);
+	            //        document.getElementById('txtMessage').value = "";
+
+	            //        runShowMessage();
+	            //        return true;
+	            //    },
+	            //    error: function () {
+	            //        alert('error');
+	            //        return false;
+	            //    }
+	            //});
 	        }
 	    }
-
 
 	    // Sing In
 	    document.getElementById('signin').onclick = function () {
@@ -311,7 +368,9 @@
 		                 can = true;
 		             }
 		         });
+                 
 		     }
 		 }
-	}
+    }
+    
 })();

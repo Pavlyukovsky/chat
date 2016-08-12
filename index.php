@@ -36,13 +36,28 @@
 
 	<!-- Chat room -->
 	<div class="chat" id='chat'>
+		<div class="logo"></div>
 		<div class="message" id='messages'>
 		</div>
 		<div class="chat-bottom">
-			<textarea id="txtMessage"></textarea>
-			<input id="btnSend" type="submit" value="Send">
-			<input id='btnAttach' type="file" name='fileTxt'>
+			<form class="form-ad" method="POST" name="sendForm">
+				<textarea id="txtMessage" placeholder="Your message"></textarea>
+				<input id="btnSend" type="submit" value="Send message">
+				<div class="btnAttach-dd">
+					<input id='btnAttach' type="file" name='fileTxt'>
+				</div>
+			</form>
 		</div>
+		
 	</div>
+	<div class="b-popup" id="popUp">
+	    <div class="b-popup-content" id="popUpContent">
+	    	<div class="b-popup-x" id='closePopUp'>X</div>
+	        <div class="b-popup-text" id="popUpText">
+	        	Text in Popup
+	        </div>
+	    </div>
+	</div>
+
 </body>
 </html>
